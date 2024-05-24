@@ -1,0 +1,34 @@
+-- Define variables for the query and the WHERE condition
+SET @sql_query = 'SELECT col1,col2,col3,… FROM TableA A
+			LEFT JOIN tableB B ON A.id= B.id
+			LEFT JOIN tableC C ON B.id = C.id
+			WHERE 1=1';
+ SET @where_condition = '';
+ SET dynamic_query = '';
+ SET insert_stmt = '';
+
+SET value1_Temp = JSON_UNQUOTE(JSON_EXTRACT(json_text, '$.Value1'));
+SET Value2_Temp = JSON_UNQUOTE(JSON_EXTRACT(json_text, '$.Value2'));
+SET Value3_Temp = JSON_UNQUOTE(JSON_EXTRACT(json_text, '$.Value3'));
+
+			IF value1_Temp IS NOT NULL AND value1_Temp != '' THEN
+				SET @sql_query = CONCAT(@sql_query, ' AND A.Id = "', value1_Temp, '"');
+			END IF;
+			IF Value2_Temp IS NOT NULL AND Value2_Temp != ''THEN
+				SET @sql_query = CONCAT(@sql_query, ' AND A.id2= "', Value2_Temp, '"');
+			END IF;
+			IF Value3_Temp IS NOT NULL ANDValue3_Temp != '' THEN
+				SET @sql_query = CONCAT(@sql_query, ' AND pti.id3= "Value3_Temp, '"');
+			END IF;
+			 
+SET dynamic_query = @sql_query;
+
+SET @temp_insert = 'INSERT INTO Grower.TEMP_Table(Col1,Col2,Col3,…)';
+SET @insert_query = CONCAT(@temp_insert,dynamic_query);
+
+SET insert_stmt =@insert_query;
+-- Prepare and execute the dynamic SQL to insert into temp table 
+	PREPARE insert_stmt FROM @insert_query;
+    EXECUTE insert_stmt;
+   
+DEALLOCATE PREPARE insert_stmt;
